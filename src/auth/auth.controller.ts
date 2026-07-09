@@ -1,8 +1,10 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
 import { RegisterDto } from './dtos/register.dto';
 import { AuthService } from './auth.service';
 import { LoginDto } from './dtos/login.dto';
+import { AuthGuard } from './guards/auth.guard';
 
+@UseGuards(AuthGuard) // Controller Level
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
@@ -19,4 +21,10 @@ export class AuthController {
   login(@Body() loginDto: LoginDto): Promise<{ access_token: string }> {
     return this.authService.login(loginDto);
   }
+
+  // @UseGuards(AuthGuard) // Method Level
+  @Get('me')
+  getMe() {
+    return 'GET ME';
+  } // return authenticated user data
 }

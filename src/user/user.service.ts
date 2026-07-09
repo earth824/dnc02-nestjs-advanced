@@ -1,8 +1,9 @@
-import { Injectable } from '@nestjs/common';
+import { ConflictException, Injectable } from '@nestjs/common';
 import { UserCreateInput } from './types/user.type';
 import { BcryptService } from '@/shared/security/bcrypt.service';
 import { PrismaService } from '@/database/prisma.service';
 import { User } from '@/generated/prisma/client';
+import { PrismaClientKnownRequestError } from '@/generated/prisma/internal/prismaNamespace';
 
 @Injectable()
 export class UserService {
@@ -18,8 +19,12 @@ export class UserService {
         data: { email: input.email, password: hashed, role: input.role }
       });
     } catch (error) {
-      // HANDLE DUPLICATE EMAIL
-      console.log(error);
+      if (error instanceof PrismaClientKnownRequestError) {
+        if (error.code === 'P2002') {
+          throw new ConflictException('Email already exists');
+        }
+      }
+      throw error;
     }
   }
 

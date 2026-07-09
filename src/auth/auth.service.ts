@@ -1,4 +1,9 @@
-import { Injectable } from '@nestjs/common';
+import {
+  HttpException,
+  HttpStatus,
+  Injectable,
+  UnauthorizedException
+} from '@nestjs/common';
 import { RegisterDto } from './dtos/register.dto';
 import { UserService } from '@/user/user.service';
 import { LoginDto } from './dtos/login.dto';
@@ -21,7 +26,7 @@ export class AuthService {
     const user = await this.userService.getUserByEmail(dto.email);
     if (!user) {
       // SENT ERROR RESPONSE (to be continue tomorrow)
-      throw new Error('Invalid credentials');
+      throw new HttpException('Invalid credentials', HttpStatus.UNAUTHORIZED);
     }
 
     const isMatch = await this.bcryptService.compare(
@@ -30,7 +35,7 @@ export class AuthService {
     );
     if (!isMatch) {
       // SENT ERROR RESPONSE (to be continue tomorrow)
-      throw new Error('Invalid credentials');
+      throw new UnauthorizedException('Invalid email or password');
     }
 
     const access_token = await this.jwtService.signAsync({
