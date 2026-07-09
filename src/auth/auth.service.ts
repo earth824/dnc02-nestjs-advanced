@@ -9,13 +9,16 @@ import { UserService } from '@/user/user.service';
 import { LoginDto } from './dtos/login.dto';
 import { BcryptService } from '@/shared/security/bcrypt.service';
 import { JwtService } from '@nestjs/jwt';
+import { AccessTokenPayload } from './types/jwt-payload.type';
+import { AccessTokenService } from './access-token.service';
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly userService: UserService,
     private readonly bcryptService: BcryptService,
-    private readonly jwtService: JwtService
+    private readonly jwtService: JwtService,
+    private readonly accessTokenService: AccessTokenService
   ) {}
 
   async register(dto: RegisterDto): Promise<void> {
@@ -38,9 +41,18 @@ export class AuthService {
       throw new UnauthorizedException('Invalid email or password');
     }
 
-    const access_token = await this.jwtService.signAsync({
+    // const payload: AccessTokenPayload = {
+    //   sub: user.id,
+    //   email: user.email,
+    //   role: user.role
+    // };
+
+    // const access_token = await this.jwtService.signAsync(payload);
+
+    const access_token = await this.accessTokenService.sign({
       sub: user.id,
-      email: user.email
+      email: user.email,
+      role: user.role
     });
 
     return { access_token };
