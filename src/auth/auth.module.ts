@@ -21,6 +21,7 @@ import { AccessTokenService } from './access-token.service';
     AccessTokenService
     // { provide: AuthService, useClass: AuthService }
     // { provide: 'Auth', useClass: AuthService }
-  ]
+  ],
+  exports: [AccessTokenService]
 })
 export class AuthModule {}

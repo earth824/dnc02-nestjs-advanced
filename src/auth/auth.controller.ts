@@ -4,6 +4,7 @@ import { AuthService } from './auth.service';
 import { LoginDto } from './dtos/login.dto';
 import { AuthGuard } from './guards/auth.guard';
 import { Public } from '@/common/decorators/public.decorator';
+import { CurrentUser } from '@/common/decorators/current-user.decorator';
 
 // @Public()
 @UseGuards(AuthGuard) // Controller Level
@@ -28,7 +29,8 @@ export class AuthController {
 
   // @UseGuards(AuthGuard) // Method Level
   @Get('me')
-  getMe() {
+  getMe(@CurrentUser('sub') id: string) {
+    console.log(id);
     return 'GET ME';
   } // return authenticated user data
 }
