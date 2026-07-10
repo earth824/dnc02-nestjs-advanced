@@ -2,6 +2,7 @@ import {
   HttpException,
   HttpStatus,
   Injectable,
+  NotFoundException,
   UnauthorizedException
 } from '@nestjs/common';
 import { RegisterDto } from './dtos/register.dto';
@@ -11,6 +12,7 @@ import { BcryptService } from '@/shared/security/bcrypt.service';
 import { JwtService } from '@nestjs/jwt';
 import { AccessTokenPayload } from './types/jwt-payload.type';
 import { AccessTokenService } from './access-token.service';
+import { UserDto } from '@/user/dtos/user.dto';
 
 @Injectable()
 export class AuthService {
@@ -56,5 +58,14 @@ export class AuthService {
     });
 
     return { access_token };
+  }
+
+  async getAuthenticatedUser(userId: string): Promise<UserDto> {
+    const user = await this.userService.getUserById(userId);
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    return { id: user.id, email: user.email, role: user.role };
   }
 }

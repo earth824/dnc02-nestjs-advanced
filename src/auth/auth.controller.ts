@@ -1,10 +1,19 @@
-import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Post,
+  UseGuards,
+  UseInterceptors
+} from '@nestjs/common';
 import { RegisterDto } from './dtos/register.dto';
 import { AuthService } from './auth.service';
 import { LoginDto } from './dtos/login.dto';
 import { AuthGuard } from './guards/auth.guard';
 import { Public } from '@/common/decorators/public.decorator';
 import { CurrentUser } from '@/common/decorators/current-user.decorator';
+import { UserDto } from '@/user/dtos/user.dto';
+import { CacheInterceptor } from '@/common/interceptors/cache.interceptor';
 
 // @Public()
 @UseGuards(AuthGuard) // Controller Level
@@ -28,9 +37,10 @@ export class AuthController {
   }
 
   // @UseGuards(AuthGuard) // Method Level
+  @UseInterceptors(CacheInterceptor)
   @Get('me')
-  getMe(@CurrentUser('sub') id: string) {
-    console.log(id);
-    return 'GET ME';
+  getMe(@CurrentUser('sub') id: string): Promise<UserDto> {
+    console.log('GET ME');
+    return this.authService.getAuthenticatedUser(id);
   } // return authenticated user data
 }
